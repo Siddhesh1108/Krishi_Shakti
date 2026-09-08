@@ -135,3 +135,54 @@ export interface RagDocument {
   status: string;
   created_at: string;
 }
+
+export interface SoilTestRequest {
+  id: string;
+  user_id: string;
+  sample_id: string;
+  farmer_name: string;
+  farm_location: string;
+  village: string;
+  district: string;
+  state: string;
+  land_area: number;
+  current_crop: string;
+  planned_crop: string;
+  soil_type: string;
+  collection_date: string;
+  notes?: string;
+  status: 'Pending' | 'Sample Received' | 'Testing' | 'Report Ready' | 'Completed';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SoilTestReport {
+  id: string;
+  request_id: string;
+  user_id: string;
+  lab_id: string;
+  report_file_path: string;
+  report_name: string;
+  remarks?: string;
+  tested_by?: string;
+  status: string;
+  uploaded_at: string;
+  completed_at: string;
+}
+
+export interface LabProfile {
+  id: string;
+  name: string;
+  reg_no: string;
+  state: string;
+  district: string;
+  status: 'VERIFIED' | 'PENDING_APPROVAL' | 'REJECTED';
+  active_tests: number;
+  tests_completed: number;
+  contact_email: string;
+  phone?: string;
+  address?: string;
+  accreditation?: string;
+  created_at?: string;
+}
+

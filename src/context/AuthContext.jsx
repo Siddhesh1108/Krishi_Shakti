@@ -7,18 +7,18 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null); // 'ngo' | 'admin' | 'expert' | 'farmer'
+  const [role, setRole] = useState(null); // 'lab' | 'admin' | 'expert' | 'farmer'
 
   const getDemoUser = (targetRole) => {
     switch (targetRole) {
-      case 'ngo':
+      case 'lab':
         return {
-          id: 'demo-ngo-id',
-          email: 'ngo@krishidrishti.org',
+          id: 'demo-lab-id',
+          email: 'lab@krishidrishti.ag',
           user_metadata: {
-            name: 'Green Earth NGO Foundation',
-            role: 'ngo',
-            organization: 'Green Earth Agriculture Trust'
+            name: 'Central Soil Testing Laboratory',
+            role: 'lab',
+            organization: 'National Soil Research Lab'
           }
         };
       case 'admin':
@@ -56,18 +56,18 @@ export function AuthProvider({ children }) {
 
   const determineRole = (currentUser) => {
     const storedRole = sessionStorage.getItem('user_role');
-    if (storedRole && ['ngo', 'admin', 'expert', 'farmer'].includes(storedRole)) {
+    if (storedRole && ['lab', 'admin', 'expert', 'farmer'].includes(storedRole)) {
       return storedRole;
     }
-    if (currentUser?.user_metadata?.role && ['ngo', 'admin', 'expert', 'farmer'].includes(currentUser.user_metadata.role)) {
+    if (currentUser?.user_metadata?.role && ['lab', 'admin', 'expert', 'farmer'].includes(currentUser.user_metadata.role)) {
       return currentUser.user_metadata.role;
     }
-    if (currentUser?.app_metadata?.role && ['ngo', 'admin', 'expert', 'farmer'].includes(currentUser.app_metadata.role)) {
+    if (currentUser?.app_metadata?.role && ['lab', 'admin', 'expert', 'farmer'].includes(currentUser.app_metadata.role)) {
       return currentUser.app_metadata.role;
     }
     if (sessionStorage.getItem('demo_mode') === 'true') {
       const demoRole = sessionStorage.getItem('demo_role');
-      if (demoRole && ['ngo', 'admin', 'expert', 'farmer'].includes(demoRole)) {
+      if (demoRole && ['lab', 'admin', 'expert', 'farmer'].includes(demoRole)) {
         return demoRole;
       }
     }
@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (sessionStorage.getItem('demo_mode') === 'true') {
       const activeRole = sessionStorage.getItem('demo_role');
-      if (activeRole && ['ngo', 'admin', 'expert', 'farmer'].includes(activeRole)) {
+      if (activeRole && ['lab', 'admin', 'expert', 'farmer'].includes(activeRole)) {
         const demoUser = getDemoUser(activeRole);
         setUser(demoUser);
         setSession({ user: demoUser });

@@ -187,10 +187,11 @@ export const notificationService = {
 export const adminService = {
   getDashboardStats: async () => {
     try {
-      const [farmersReq, farmsReq, diagnosesReq] = await Promise.all([
+      const [farmersReq, farmsReq, diagnosesReq, labsReq] = await Promise.all([
         supabase.from('farmers').select('id', { count: 'exact', head: true }),
         supabase.from('farms').select('area_acres'),
-        supabase.from('crop_diagnoses').select('id', { count: 'exact', head: true })
+        supabase.from('crop_diagnoses').select('id', { count: 'exact', head: true }),
+        supabase.from('lab_profiles').select('id', { count: 'exact', head: true })
       ]);
       
       const totalAcreage = farmsReq.data?.reduce((sum, f) => sum + (f.area_acres || 0), 0) || 0;
@@ -199,39 +200,38 @@ export const adminService = {
         totalFarmers: farmersReq.count || 1248,
         totalAcreage: totalAcreage || 18420,
         totalDiagnoses: diagnosesReq.count || 342,
-        totalNgos: 14,
-        pendingApprovals: 3
+        totalLabs: labsReq.count || 8,
+        pendingApprovals: 2
       };
     } catch (_err) {
       return {
         totalFarmers: 1248,
         totalAcreage: 18420,
         totalDiagnoses: 342,
-        totalNgos: 14,
-        pendingApprovals: 3
+        totalLabs: 8,
+        pendingApprovals: 2
       };
     }
   },
-  getAllNgos: async () => {
+  getAllLabs: async () => {
     try {
-      const { data, error } = await supabase.from('ngo_profiles').select('*');
+      const { data, error } = await supabase.from('lab_profiles').select('*');
       if (error || !data || data.length === 0) throw error || new Error('No DB data');
       return data;
     } catch (_err) {
-      // Return structured default NGO dataset
       return [
-        { id: 'ngo-1', name: 'Green Earth Agriculture Trust', regNo: 'NGO-DEL-2021-884', state: 'Punjab & Haryana', status: 'VERIFIED', activeProjects: 4, farmersSupported: 840, contact: 'contact@greenearthtrust.org', email: 'ngo@krishidrishti.org', director: 'Dr. Ramesh Sharma' },
-        { id: 'ngo-2', name: 'Krishi Vikas Foundation', regNo: 'NGO-UP-2019-302', state: 'Uttar Pradesh', status: 'VERIFIED', activeProjects: 3, farmersSupported: 620, contact: 'info@krishivikas.org', email: 'support@krishivikas.org', director: 'Sunita Verma' },
-        { id: 'ngo-3', name: 'Organic Soil & Bio-Heritage Alliance', regNo: 'NGO-RAJ-2023-119', state: 'Rajasthan', status: 'PENDING_APPROVAL', activeProjects: 1, farmersSupported: 210, contact: 'alliance@organicbio.org', email: 'contact@organicbio.org', director: 'Mahesh Sen' },
-        { id: 'ngo-4', name: 'Samriddhi Rural Development NGO', regNo: 'NGO-MP-2022-771', state: 'Madhya Pradesh', status: 'VERIFIED', activeProjects: 5, farmersSupported: 1150, contact: 'helpline@samriddhitrust.in', email: 'ngo@samriddhi.in', director: 'Anil Kumar Patel' }
+        { id: 'lab-1', name: 'Central Agri Soil Testing Laboratory', regNo: 'LAB-DEL-2022-104', state: 'Haryana & Punjab', status: 'VERIFIED', active_tests: 18, tests_completed: 480, contact_email: 'lab@krishidrishti.ag', phone: '+91 98120 44556', accreditation: 'NABL & ICAR Accredited', director: 'Dr. Ramesh Sharma' },
+        { id: 'lab-2', name: 'National Agronomy Pathology & Soil Research Centre', regNo: 'LAB-UP-2020-512', state: 'Uttar Pradesh', status: 'VERIFIED', active_tests: 12, tests_completed: 310, contact_email: 'pathology@krishilab.in', phone: '+91 94110 88776', accreditation: 'NABL ISO/IEC 17025', director: 'Dr. Sunita Verma' },
+        { id: 'lab-3', name: 'Bio-Heritage Regional Testing Station', regNo: 'LAB-RAJ-2024-089', state: 'Rajasthan', status: 'PENDING_APPROVAL', active_tests: 4, tests_completed: 85, contact_email: 'testing@bioheritage.org', phone: '+91 97230 11990', accreditation: 'ICAR State Certified', director: 'Dr. Mahesh Sen' },
+        { id: 'lab-4', name: 'Samriddhi Precision Soil Analysis Lab', regNo: 'LAB-MP-2023-331', state: 'Madhya Pradesh', status: 'VERIFIED', active_tests: 22, tests_completed: 640, contact_email: 'soil@samriddhilab.in', phone: '+91 98930 22114', accreditation: 'NABL & Department of Agriculture', director: 'Dr. Anil Kumar Patel' }
       ];
     }
   },
-  updateNgoStatus: async (ngoId, newStatus) => {
+  updateLabStatus: async (labId, newStatus) => {
     try {
-      await supabase.from('ngo_profiles').update({ status: newStatus }).eq('id', ngoId);
+      await supabase.from('lab_profiles').update({ status: newStatus }).eq('id', labId);
     } catch (_err) {
-      console.warn('Updated NGO status locally:', ngoId, newStatus);
+      console.warn('Updated Lab status locally:', labId, newStatus);
     }
   },
   getAllUsers: async () => {
@@ -250,65 +250,349 @@ export const adminService = {
   }
 };
 
-export const ngoService = {
-  getNgoProfile: async (ngoId = 'demo-ngo-id') => {
-    try {
-      const { data, error } = await supabase.from('ngo_profiles').select('*').eq('id', ngoId).single();
-      if (error || !data) throw error || new Error('No data');
-      return data;
-    } catch (_err) {
-      return {
-        id: ngoId,
-        name: 'Green Earth Agriculture Trust',
-        regNo: 'NGO-DEL-2021-884',
-        state: 'Punjab & Haryana Region',
-        district: 'Karnal & Kurukshetra',
-        status: 'VERIFIED',
-        activeProjects: 4,
-        farmersSupported: 840,
-        grantsDisbursed: '₹ 24,50,000',
-        contactEmail: 'ngo@krishidrishti.org',
-        phone: '+91 98100 22334',
-        address: '14, Sector 6, Institutional Area, Karnal, Haryana',
-        focusAreas: ['Water Conservation & Drip Irrigation', 'Organic Bio-Inputs', 'Soil Health Mapping', 'Crop Insurance Guidance']
-      };
-    }
+// Fallback in-memory state for local/demo execution
+const mockRequests = [
+  {
+    id: 'req-st-001',
+    user_id: 'demo-farmer-id',
+    sample_id: 'SAMP-2026-108',
+    farmer_name: 'Arjun Singh',
+    farm_location: 'Plot 4, GT Road Sector 14',
+    village: 'Karnal Village',
+    district: 'Karnal',
+    state: 'Haryana',
+    land_area: 12.5,
+    current_crop: 'Wheat (HD-3086)',
+    planned_crop: 'Basmati Rice (Pusa 1121)',
+    soil_type: 'Clay Loam',
+    collection_date: '2026-09-02',
+    notes: 'Please measure Nitrogen deficit and NPK organic ratio.',
+    status: 'Testing',
+    created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+    updated_at: new Date().toISOString()
   },
-  getProjects: async (_ngoId = 'demo-ngo-id') => {
-    try {
-      const { data, error } = await supabase.from('ngo_projects').select('*').order('created_at', { ascending: false });
-      if (error || !data || data.length === 0) throw error || new Error('No data');
-      return data;
-    } catch (_err) {
-      return [
-        { id: 'proj-1', title: 'Solar Water Pump Subsidy Drive', region: 'Karnal District', beneficiaryCount: 320, budget: '₹ 12,00,000', status: 'IN_PROGRESS', progress: 75, category: 'Irrigation' },
-        { id: 'proj-2', title: 'Bio-Fertilizer & Neem Spray Distribution', region: 'Kurukshetra Block', beneficiaryCount: 280, budget: '₹ 4,50,000', status: 'COMPLETED', progress: 100, category: 'Organic Farming' },
-        { id: 'proj-3', title: 'Stubble Management Machinery Access', region: 'Ambala & Kaithal', beneficiaryCount: 190, budget: '₹ 8,00,000', status: 'IN_PROGRESS', progress: 40, category: 'Equipment Sharing' }
-      ];
-    }
+  {
+    id: 'req-st-002',
+    user_id: 'demo-farmer-id',
+    sample_id: 'SAMP-2026-109',
+    farmer_name: 'Arjun Singh',
+    farm_location: 'North Block Acres',
+    village: 'Taraori',
+    district: 'Karnal',
+    state: 'Haryana',
+    land_area: 8.0,
+    current_crop: 'Mustard (Pusa Bold)',
+    planned_crop: 'Wheat',
+    soil_type: 'Sandy Loam',
+    collection_date: '2026-08-25',
+    notes: 'High salinity suspected in ground irrigation water.',
+    status: 'Completed',
+    created_at: new Date(Date.now() - 14 * 86400000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 86400000).toISOString()
   },
-  getAssistanceRequests: async (_ngoId = 'demo-ngo-id') => {
+  {
+    id: 'req-st-003',
+    user_id: 'f-102',
+    sample_id: 'SAMP-2026-110',
+    farmer_name: 'Sukhwinder Kaur',
+    farm_location: 'Field No 12, Canal Side',
+    village: 'Samrala',
+    district: 'Ludhiana',
+    state: 'Punjab',
+    land_area: 24.0,
+    current_crop: 'Paddy',
+    planned_crop: 'Potato',
+    soil_type: 'Alluvial',
+    collection_date: '2026-09-05',
+    notes: 'Requires Micronutrient analysis for Zinc and Boron.',
+    status: 'Sample Received',
+    created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
+
+const mockReports = [
+  {
+    id: 'rep-st-001',
+    request_id: 'req-st-002',
+    user_id: 'demo-farmer-id',
+    lab_id: 'demo-lab-id',
+    report_file_path: 'reports/soil-report-SAMP-2026-109.pdf',
+    report_name: 'Comprehensive Soil Nutrient Card - SAMP-2026-109.pdf',
+    remarks: 'Optimal Nitrogen level detected. Phosphorus requires +15% boost via DAP/organic compost. pH status: 7.2 (Balanced).',
+    tested_by: 'Dr. Ramesh Sharma (Senior Soil Pathologist)',
+    status: 'Available',
+    uploaded_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+    completed_at: new Date(Date.now() - 2 * 86400000).toISOString()
+  }
+];
+
+export const soilTestService = {
+  createSoilTestRequest: async (requestData) => {
     try {
-      const { data, error } = await supabase.from('ngo_assistance_requests').select('*');
-      if (error || !data || data.length === 0) throw error || new Error('No data');
-      return data;
-    } catch (_err) {
-      return [
-        { id: 'req-101', farmerName: 'Gurpreet Singh', Village: 'Taraori, Karnal', requestType: 'Drip Kit Subsidy', acreage: '4.5 acres', status: 'PENDING', date: '2026-09-02' },
-        { id: 'req-102', farmerName: 'Ram Avatar', Village: 'Nilokheri, Karnal', requestType: 'Soil Health Card Testing', acreage: '6.0 acres', status: 'APPROVED', date: '2026-08-28' },
-        { id: 'req-103', farmerName: 'Manjeet Kaur', Village: 'Assandh, Karnal', requestType: 'Organic Seed Packet Support', acreage: '3.0 acres', status: 'APPROVED', date: '2026-08-25' }
-      ];
-    }
-  },
-  createProject: async (projectData) => {
-    try {
-      const { data, error } = await supabase.from('ngo_projects').insert(projectData).select().single();
+      const { data, error } = await supabase
+        .from('soil_test_requests')
+        .insert({
+          user_id: requestData.user_id,
+          sample_id: requestData.sample_id,
+          farmer_name: requestData.farmer_name,
+          farm_location: requestData.farm_location,
+          village: requestData.village,
+          district: requestData.district,
+          state: requestData.state,
+          land_area: parseFloat(requestData.land_area),
+          current_crop: requestData.current_crop,
+          planned_crop: requestData.planned_crop,
+          soil_type: requestData.soil_type,
+          collection_date: requestData.collection_date,
+          notes: requestData.notes || '',
+          status: 'Pending'
+        })
+        .select()
+        .single();
       if (error) throw error;
       return data;
     } catch (_err) {
-      console.warn('Created NGO project locally:', projectData);
-      return { id: `proj-${Date.now()}`, ...projectData, progress: 0, status: 'IN_PROGRESS' };
+      console.warn('Using local fallback for createSoilTestRequest');
+      const newReq = {
+        id: `req-st-${Date.now()}`,
+        user_id: requestData.user_id || 'demo-farmer-id',
+        sample_id: requestData.sample_id || `SAMP-${Math.floor(1000 + Math.random() * 9000)}`,
+        farmer_name: requestData.farmer_name || 'Farmer User',
+        farm_location: requestData.farm_location || 'Main Plot',
+        village: requestData.village || 'Karnal',
+        district: requestData.district || 'Karnal',
+        state: requestData.state || 'Haryana',
+        land_area: parseFloat(requestData.land_area) || 5.0,
+        current_crop: requestData.current_crop || 'Wheat',
+        planned_crop: requestData.planned_crop || 'Paddy',
+        soil_type: requestData.soil_type || 'Loam',
+        collection_date: requestData.collection_date || new Date().toISOString().split('T')[0],
+        notes: requestData.notes || '',
+        status: 'Pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      mockRequests.unshift(newReq);
+      return newReq;
+    }
+  },
+
+  getFarmerSoilTestRequests: async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('soil_test_requests')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (error || !data) throw error || new Error('No DB data');
+      return data;
+    } catch (_err) {
+      return mockRequests.filter(r => r.user_id === userId || userId === 'demo-farmer-id');
+    }
+  },
+
+  getLabSoilTestRequests: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('soil_test_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error || !data) throw error || new Error('No DB data');
+      return data;
+    } catch (_err) {
+      return mockRequests;
+    }
+  },
+
+  getSoilTestRequestById: async (requestId) => {
+    try {
+      const { data, error } = await supabase
+        .from('soil_test_requests')
+        .select('*')
+        .eq('id', requestId)
+        .single();
+      if (error || !data) throw error || new Error('No DB data');
+      return data;
+    } catch (_err) {
+      return mockRequests.find(r => r.id === requestId) || mockRequests[0];
+    }
+  },
+
+  updateSoilTestRequestStatus: async (requestId, newStatus) => {
+    try {
+      const { data, error } = await supabase
+        .from('soil_test_requests')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', requestId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (_err) {
+      const target = mockRequests.find(r => r.id === requestId);
+      if (target) {
+        target.status = newStatus;
+        target.updated_at = new Date().toISOString();
+      }
+      return target;
+    }
+  },
+
+  uploadSoilTestReport: async (file, { requestId, userId, labId, remarks, testedBy }) => {
+    const timestamp = Date.now();
+    const cleanFileName = `soil-report-${requestId}-${timestamp}.pdf`;
+    const filePath = `reports/${cleanFileName}`;
+
+    let uploadedPath = filePath;
+
+    try {
+      if (file) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('soil-test-reports')
+          .upload(filePath, file, { upsert: true });
+        if (uploadError) {
+          console.warn('Supabase storage upload error:', uploadError.message);
+        } else if (uploadData?.path) {
+          uploadedPath = uploadData.path;
+        }
+      }
+
+      const { data, error } = await supabase
+        .from('soil_test_reports')
+        .insert({
+          request_id: requestId,
+          user_id: userId,
+          lab_id: labId || 'demo-lab-id',
+          report_file_path: uploadedPath,
+          report_name: file ? file.name : `Soil-Analysis-Report-${requestId}.pdf`,
+          remarks: remarks || 'Soil test completed successfully.',
+          tested_by: testedBy || 'Senior Soil Chemist',
+          status: 'Available'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Also update request status to Completed
+      await supabase
+        .from('soil_test_requests')
+        .update({ status: 'Completed', updated_at: new Date().toISOString() })
+        .eq('id', requestId);
+
+      return data;
+    } catch (_err) {
+      console.warn('Local fallback for uploadSoilTestReport');
+      const newReport = {
+        id: `rep-st-${timestamp}`,
+        request_id: requestId,
+        user_id: userId || 'demo-farmer-id',
+        lab_id: labId || 'demo-lab-id',
+        report_file_path: uploadedPath,
+        report_name: file ? file.name : `Soil-Analysis-Report-${requestId}.pdf`,
+        remarks: remarks || 'Detailed soil NPK & micronutrient profile evaluated.',
+        tested_by: testedBy || 'Dr. Ramesh Sharma (Senior Soil Chemist)',
+        status: 'Available',
+        uploaded_at: new Date().toISOString(),
+        completed_at: new Date().toISOString()
+      };
+      mockReports.unshift(newReport);
+      
+      const req = mockRequests.find(r => r.id === requestId);
+      if (req) {
+        req.status = 'Completed';
+        req.updated_at = new Date().toISOString();
+      }
+
+      return newReport;
+    }
+  },
+
+  getFarmerSoilTestReports: async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('soil_test_reports')
+        .select('*, soil_test_requests(*)')
+        .eq('user_id', userId)
+        .order('uploaded_at', { ascending: false });
+      if (error || !data) throw error || new Error('No DB data');
+      return data;
+    } catch (_err) {
+      return mockReports.filter(r => r.user_id === userId || userId === 'demo-farmer-id').map(rep => {
+        const req = mockRequests.find(r => r.id === rep.request_id);
+        return { ...rep, soil_test_requests: req };
+      });
+    }
+  },
+
+  getLabSoilTestReports: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('soil_test_reports')
+        .select('*, soil_test_requests(*)')
+        .order('uploaded_at', { ascending: false });
+      if (error || !data) throw error || new Error('No DB data');
+      return data;
+    } catch (_err) {
+      return mockReports.map(rep => {
+        const req = mockRequests.find(r => r.id === rep.request_id);
+        return { ...rep, soil_test_requests: req };
+      });
+    }
+  },
+
+  getReportSignedUrl: async (filePath) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('soil-test-reports')
+        .createSignedUrl(filePath, 3600);
+      if (error || !data?.signedUrl) throw error || new Error('Signed URL failed');
+      return data.signedUrl;
+    } catch (_err) {
+      return null; // Frontend viewer will render formatted PDF report card fallback
     }
   }
 };
+
+export const labService = {
+  getLabProfile: async (labId = 'demo-lab-id') => {
+    try {
+      const { data, error } = await supabase
+        .from('lab_profiles')
+        .select('*')
+        .eq('id', labId)
+        .single();
+      if (error || !data) throw error || new Error('No DB data');
+      return data;
+    } catch (_err) {
+      return {
+        id: labId,
+        name: 'Central Soil Testing Laboratory',
+        regNo: 'LAB-DEL-2022-104',
+        state: 'Punjab & Haryana Region',
+        district: 'Karnal & Kurukshetra',
+        status: 'VERIFIED',
+        active_tests: mockRequests.filter(r => r.status === 'Testing' || r.status === 'Sample Received').length,
+        tests_completed: mockReports.length + 420,
+        contact_email: 'lab@krishidrishti.ag',
+        phone: '+91 98120 44556',
+        address: 'Sector 14, Institutional Area, Karnal, Haryana',
+        accreditation: 'NABL (ISO/IEC 17025) & ICAR Accredited'
+      };
+    }
+  },
+  getLabStats: async () => {
+    const requests = await soilTestService.getLabSoilTestRequests();
+    const reports = await soilTestService.getLabSoilTestReports();
+    return {
+      newRequests: requests.filter(r => r.status === 'Pending').length,
+      samplesReceived: requests.filter(r => r.status === 'Sample Received').length,
+      testsInProgress: requests.filter(r => r.status === 'Testing').length,
+      reportsGenerated: reports.length,
+      reportsDelivered: requests.filter(r => r.status === 'Completed').length
+    };
+  }
+};
+
 

@@ -15,7 +15,7 @@ export function AdminContentManagement() {
   };
 
   const handleBroadcastAlert = () => {
-    notify('Emergency agronomic advisory alert broadcast to registered NGOs and partners!');
+    notify('Emergency agronomic advisory alert broadcast to registered soil labs and regional stations!');
   };
 
   const toggleSchemeStatus = (id) => {

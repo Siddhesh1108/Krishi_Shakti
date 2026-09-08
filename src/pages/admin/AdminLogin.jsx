@@ -84,11 +84,11 @@ export function AdminLogin() {
         <div className="auth-copy">
           <span className="eyebrow light admin-eyebrow">SYSTEM OPERATIONS & AUDIT</span>
           <h1>Central Platform Command.</h1>
-          <p>Supervise agricultural partner NGOs, review real-time AI pathology models, manage national farmer registries, and direct scheme alerts.</p>
+          <p>Supervise soil testing lab accreditations, review real-time AI pathology models, manage national farmer registries, and direct scheme alerts.</p>
         </div>
         <div className="admin-perks-list">
           <div className="admin-perk-item"><CheckCircle2 size={16} style={{ color: '#38bdf8' }} /> Executive Operations & Telemetry Monitoring</div>
-          <div className="admin-perk-item"><CheckCircle2 size={16} style={{ color: '#38bdf8' }} /> Registered NGO Verification & Audit Control</div>
+          <div className="admin-perk-item"><CheckCircle2 size={16} style={{ color: '#38bdf8' }} /> Registered Soil Lab Verification & Audit Control</div>
           <div className="admin-perk-item"><CheckCircle2 size={16} style={{ color: '#38bdf8' }} /> Full User & Agronomic Data Moderation</div>
         </div>
         <div className="auth-quote">“Operational clarity powers seamless agricultural governance.”</div>

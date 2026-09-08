@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService } from '../../lib/services';
 import {
-  Users, Tractor, Bot, Building2, Download, BarChart3, ShieldAlert,
+  Users, Tractor, Bot, FlaskConical, Download, BarChart3, ShieldAlert,
   ArrowUpRight, AlertTriangle, BookOpen, Store, ShieldCheck, CheckCircle2
 } from 'lucide-react';
 
@@ -27,11 +27,11 @@ export function AdminDashboard() {
   };
 
   const exportReport = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Date,Total Farmers,Total Farmland Acres,AI Diagnoses,Registered NGOs,Pending Approvals\n2026-09-08,1248,18420.5,342,14,3";
+    const csvContent = "data:text/csv;charset=utf-8,Date,Total Farmers,Total Farmland Acres,AI Diagnoses,Soil Testing Labs,Pending Approvals\n2026-09-08,1248,18420.5,342,8,2";
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "krishidrishti-platform-executive-report.csv");
+    link.setAttribute("download", "krishishakti-platform-executive-report.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -52,7 +52,7 @@ export function AdminDashboard() {
         <div>
           <span className="eyebrow blue-eyebrow">PLATFORM & OPERATIONS COMMAND CENTER</span>
           <h1>Command Center Overview</h1>
-          <p>Real-time operational visibility into farm telemetry, AI pathology models, NGO approvals, and platform registries.</p>
+          <p>Real-time operational visibility into farm telemetry, AI pathology models, soil lab accreditations, and platform registries.</p>
         </div>
         <button className="button secondary admin-button" onClick={exportReport}>
           <Download size={16} /> Export Executive Report
@@ -85,10 +85,10 @@ export function AdminDashboard() {
         </div>
 
         <div className="metric-card admin-metric-card">
-          <div className="metric-icon coral"><Building2 size={20} /></div>
-          <span>Partner NGOs</span>
-          <div className="metric-value">{stats?.totalNgos || 14} <small>organizations</small></div>
-          <p>{stats?.pendingApprovals || 3} pending approvals</p>
+          <div className="metric-icon coral"><FlaskConical size={20} /></div>
+          <span>Soil Testing Labs</span>
+          <div className="metric-value">{stats?.totalLabs || 8} <small>stations</small></div>
+          <p>{stats?.pendingApprovals || 2} pending approvals</p>
         </div>
       </div>
 
@@ -131,11 +131,11 @@ export function AdminDashboard() {
           </div>
 
           <div className="admin-modules-list">
-            <button className="admin-module-card" onClick={() => navigate('/admin/ngos')}>
-              <div className="mod-icon blue"><Building2 size={20} /></div>
+            <button className="admin-module-card" onClick={() => navigate('/admin/labs')}>
+              <div className="mod-icon blue"><FlaskConical size={20} /></div>
               <div>
-                <strong>NGO Management</strong>
-                <p>Review NGO applications, verify legal IDs, manage partner projects</p>
+                <strong>Lab Management</strong>
+                <p>Review lab applications, verify legal accreditation, manage diagnostic capacity</p>
               </div>
               <ArrowUpRight size={18} />
             </button>

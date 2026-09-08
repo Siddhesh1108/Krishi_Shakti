@@ -2,39 +2,39 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
 import {
-  LayoutDashboard, FlaskConical, Users, BookOpen, LogOut, Menu,
-  ShieldCheck, X, Zap, Cpu, Bell
+  Sprout, LayoutDashboard, PlusCircle, ClipboardList, FileText, LogOut,
+  Menu, X, ShieldCheck
 } from 'lucide-react';
 
-export function AdminLayout() {
+export function FarmerLayout() {
   const { user, logout } = useAuthContext();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const adminNavItems = [
-    { label: 'Command Center', path: '/admin/dashboard', icon: LayoutDashboard },
-    { label: 'Lab Management', path: '/admin/labs', icon: FlaskConical },
-    { label: 'Farmer & User Directory', path: '/admin/users', icon: Users },
-    { label: 'Knowledge Base & Schemes', path: '/admin/content', icon: BookOpen },
+  const farmerNavItems = [
+    { label: 'Farmer Dashboard', path: '/farmer/dashboard', icon: LayoutDashboard },
+    { label: 'Request Soil Test', path: '/farmer/soil-test', icon: PlusCircle },
+    { label: 'My Soil Tests', path: '/farmer/soil-tests', icon: ClipboardList },
+    { label: 'My Soil Reports', path: '/farmer/reports', icon: FileText },
   ];
 
   const handleLogout = async () => {
     await logout();
-    navigate('/admin/login');
+    navigate('/farmer/login');
   };
 
-  const adminName = user?.user_metadata?.name || 'Platform Administrator';
+  const farmerName = user?.user_metadata?.name || 'Arjun Singh';
 
   return (
-    <div className="platform-shell admin-shell">
+    <div className="platform-shell farmer-shell">
       {/* Sidebar */}
-      <aside className={`sidebar admin-sidebar ${mobileOpen ? 'open' : ''}`}>
-        <div className="brand admin-brand">
-          <span className="brand-mark admin-mark"><Cpu size={20} /></span>
+      <aside className={`sidebar farmer-sidebar ${mobileOpen ? 'open' : ''}`}>
+        <div className="brand farmer-brand">
+          <span className="brand-mark farmer-mark"><Sprout size={20} /></span>
           <div>
-            <strong style={{ display: 'block', fontSize: '15px', color: '#fff' }}>Platform Command</strong>
-            <small style={{ fontSize: '11px', color: '#38bdf8' }}>System Admin Node</small>
+            <strong style={{ display: 'block', fontSize: '15px', color: '#fff' }}>FARMER PORTAL</strong>
+            <small style={{ fontSize: '11px', color: '#a3e635' }}>KrishiShakti Services</small>
           </div>
           {mobileOpen && (
             <button className="icon-button" onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ marginLeft: 'auto', color: '#fff' }}>
@@ -43,12 +43,12 @@ export function AdminLayout() {
           )}
         </div>
 
-        <div className="workspace-label admin-label">
-          EXECUTIVE OPERATIONS WORKSPACE
+        <div className="workspace-label farmer-label">
+          FARMER SERVICES WORKSPACE
         </div>
 
         <nav className="side-nav">
-          {adminNavItems.map((item) => {
+          {farmerNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
@@ -60,7 +60,6 @@ export function AdminLayout() {
               >
                 <Icon size={18} />
                 <span>{item.label}</span>
-                {item.label === 'Lab Management' && <span className="nav-badge admin-badge-pill">8</span>}
               </Link>
             );
           })}
@@ -71,11 +70,11 @@ export function AdminLayout() {
             <LogOut size={18} />
             <span>Sign Out</span>
           </button>
-          <div className="api-status admin-api-status">
-            <span className="status-dot blue-dot"></span>
+          <div className="api-status farmer-api-status">
+            <span className="status-dot green-dot"></span>
             <div>
-              <strong>System Core Online</strong>
-              <small>Realtime Database Active</small>
+              <strong>Farmer Portal Online</strong>
+              <small>Secured Account Session</small>
             </div>
           </div>
         </div>
@@ -85,30 +84,30 @@ export function AdminLayout() {
 
       {/* Main Area */}
       <main className="main-area">
-        <header className="topbar admin-topbar">
+        <header className="topbar farmer-topbar">
           <button className="icon-button mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <Menu size={20} />
           </button>
 
           <div className="breadcrumbs">
-            <span style={{ color: '#38bdf8', fontWeight: 600 }}>Command Console</span>
+            <span style={{ color: '#a3e635', fontWeight: 600 }}>Farmer Portal</span>
             <span>/</span>
-            <strong>{adminNavItems.find(item => location.pathname === item.path)?.label || 'Overview'}</strong>
+            <strong>{farmerNavItems.find(item => location.pathname === item.path)?.label || 'Overview'}</strong>
           </div>
 
           <div className="top-actions">
-            <div className="admin-badge-chip">
-              <ShieldCheck size={15} style={{ color: '#38bdf8' }} />
-              <span>Super Administrator</span>
+            <div className="farmer-badge-chip" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(163, 230, 53, 0.1)', border: '1px solid rgba(163, 230, 53, 0.3)', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', color: '#a3e635' }}>
+              <ShieldCheck size={15} />
+              <span>Verified Farmer</span>
             </div>
 
-            <div className="profile-chip admin-profile-chip">
-              <span className="avatar admin-avatar">
-                {adminName.substring(0, 2).toUpperCase()}
+            <div className="profile-chip farmer-profile-chip">
+              <span className="avatar farmer-avatar" style={{ background: '#16a34a', color: '#fff' }}>
+                <Sprout size={16} />
               </span>
               <span className="profile-copy">
-                <strong>{adminName}</strong>
-                <small>System Admin</small>
+                <strong>{farmerName}</strong>
+                <small>Agricultural User</small>
               </span>
             </div>
 

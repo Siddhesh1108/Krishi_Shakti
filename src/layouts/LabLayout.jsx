@@ -2,38 +2,39 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
 import {
-  Building2, LayoutDashboard, FolderKanban, LogOut, Menu, ShieldCheck,
-  Sprout, X, UserCheck, HeartHandshake, Bell
+  FlaskConical, LayoutDashboard, ClipboardList, FileText, Building2,
+  LogOut, Menu, ShieldCheck, X, Activity
 } from 'lucide-react';
 
-export function NgoLayout() {
+export function LabLayout() {
   const { user, logout } = useAuthContext();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const ngoNavItems = [
-    { label: 'NGO Dashboard', path: '/ngo/dashboard', icon: LayoutDashboard },
-    { label: 'Field Projects & Grants', path: '/ngo/projects', icon: FolderKanban },
-    { label: 'Organization Profile', path: '/ngo/profile', icon: Building2 },
+  const labNavItems = [
+    { label: 'Lab Dashboard', path: '/lab/dashboard', icon: LayoutDashboard },
+    { label: 'Soil Test Requests', path: '/lab/requests', icon: ClipboardList },
+    { label: 'Soil Test Reports', path: '/lab/reports', icon: FileText },
+    { label: 'Lab Profile', path: '/lab/profile', icon: Building2 },
   ];
 
   const handleLogout = async () => {
     await logout();
-    navigate('/ngo/login');
+    navigate('/lab/login');
   };
 
-  const ngoName = user?.user_metadata?.organization || user?.user_metadata?.name || 'Green Earth NGO Trust';
+  const labName = user?.user_metadata?.organization || user?.user_metadata?.name || 'Central Soil Testing Laboratory';
 
   return (
-    <div className="platform-shell ngo-shell">
+    <div className="platform-shell lab-shell">
       {/* Sidebar */}
-      <aside className={`sidebar ngo-sidebar ${mobileOpen ? 'open' : ''}`}>
-        <div className="brand ngo-brand">
-          <span className="brand-mark ngo-mark"><HeartHandshake size={20} /></span>
+      <aside className={`sidebar lab-sidebar ${mobileOpen ? 'open' : ''}`}>
+        <div className="brand lab-brand">
+          <span className="brand-mark lab-mark"><FlaskConical size={20} /></span>
           <div>
-            <strong style={{ display: 'block', fontSize: '15px', color: '#fff' }}>NGO Portal</strong>
-            <small style={{ fontSize: '11px', color: '#6ee7b7' }}>KrishiDrishti Partner</small>
+            <strong style={{ display: 'block', fontSize: '15px', color: '#fff' }}>LAB PORTAL</strong>
+            <small style={{ fontSize: '11px', color: '#38bdf8' }}>Soil Testing Diagnostics</small>
           </div>
           {mobileOpen && (
             <button className="icon-button" onClick={() => setMobileOpen(false)} aria-label="Close menu" style={{ marginLeft: 'auto', color: '#fff' }}>
@@ -42,14 +43,14 @@ export function NgoLayout() {
           )}
         </div>
 
-        <div className="workspace-label ngo-label">
-          NGO FIELD WORKSPACE
+        <div className="workspace-label lab-label">
+          SOIL ANALYSIS WORKSPACE
         </div>
 
         <nav className="side-nav">
-          {ngoNavItems.map((item) => {
+          {labNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || (item.path === '/lab/requests' && location.pathname.startsWith('/lab/requests'));
             return (
               <Link
                 key={item.path}
@@ -69,11 +70,11 @@ export function NgoLayout() {
             <LogOut size={18} />
             <span>Sign Out</span>
           </button>
-          <div className="api-status ngo-api-status">
-            <span className="status-dot green-dot"></span>
+          <div className="api-status lab-api-status">
+            <span className="status-dot blue-dot"></span>
             <div>
-              <strong>NGO Telemetry</strong>
-              <small>Connected & Syncing</small>
+              <strong>Lab Telemetry Online</strong>
+              <small>NABL & Supabase Sync</small>
             </div>
           </div>
         </div>
@@ -83,30 +84,30 @@ export function NgoLayout() {
 
       {/* Main Area */}
       <main className="main-area">
-        <header className="topbar ngo-topbar">
+        <header className="topbar lab-topbar">
           <button className="icon-button mobile-menu" onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <Menu size={20} />
           </button>
 
           <div className="breadcrumbs">
-            <span style={{ color: '#6ee7b7', fontWeight: 600 }}>NGO Partner</span>
+            <span style={{ color: '#38bdf8', fontWeight: 600 }}>Lab Portal</span>
             <span>/</span>
-            <strong>{ngoNavItems.find(item => location.pathname === item.path)?.label || 'Dashboard'}</strong>
+            <strong>{labNavItems.find(item => location.pathname === item.path)?.label || 'Overview'}</strong>
           </div>
 
           <div className="top-actions">
-            <div className="ngo-badge-chip">
-              <ShieldCheck size={15} style={{ color: '#10b981' }} />
-              <span>Verified NGO</span>
+            <div className="lab-badge-chip">
+              <ShieldCheck size={15} style={{ color: '#38bdf8' }} />
+              <span>NABL Accredited Lab</span>
             </div>
 
-            <div className="profile-chip ngo-profile-chip">
-              <span className="avatar ngo-avatar">
-                <Building2 size={16} />
+            <div className="profile-chip lab-profile-chip">
+              <span className="avatar lab-avatar">
+                <FlaskConical size={16} />
               </span>
               <span className="profile-copy">
-                <strong>{ngoName}</strong>
-                <small>Agricultural Field Partner</small>
+                <strong>{labName}</strong>
+                <small>Soil Analysis Specialist</small>
               </span>
             </div>
 

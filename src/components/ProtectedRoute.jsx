@@ -28,8 +28,11 @@ export function ProtectedRoute({ allowedRoles, children }) {
 
   // 1. Unauthenticated check
   if (!isAuthenticated || !user) {
-    if (allowedRoles.includes('ngo')) {
-      return <Navigate to="/ngo/login" state={{ from: location }} replace />;
+    if (allowedRoles.includes('lab')) {
+      return <Navigate to="/lab/login" state={{ from: location }} replace />;
+    }
+    if (allowedRoles.includes('farmer')) {
+      return <Navigate to="/farmer/login" state={{ from: location }} replace />;
     }
     if (allowedRoles.includes('admin')) {
       return <Navigate to="/admin/login" state={{ from: location }} replace />;
@@ -43,8 +46,11 @@ export function ProtectedRoute({ allowedRoles, children }) {
   // 2. Role authorization check
   if (allowedRoles && !allowedRoles.includes(role)) {
     console.warn(`Unauthorized access attempt by role '${role}' to ${location.pathname}`);
-    if (role === 'ngo') {
-      return <Navigate to="/ngo/dashboard" replace />;
+    if (role === 'lab') {
+      return <Navigate to="/lab/dashboard" replace />;
+    }
+    if (role === 'farmer') {
+      return <Navigate to="/farmer/dashboard" replace />;
     }
     if (role === 'admin') {
       return <Navigate to="/admin/dashboard" replace />;
@@ -52,7 +58,7 @@ export function ProtectedRoute({ allowedRoles, children }) {
     if (role === 'expert') {
       return <Navigate to="/expert/dashboard" replace />;
     }
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;
