@@ -7,145 +7,65 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null); // 'lab' | 'admin' | 'expert' | 'farmer'
+  const [role, setRole] = useState(null); // 'admin' | 'lab' | 'expert' | 'farmer'
 
-  const getDemoUser = (targetRole) => {
-    switch (targetRole) {
-      case 'lab':
-        return {
-          id: 'demo-lab-id',
-          email: 'lab@krishidrishti.ag',
-          user_metadata: {
-            name: 'Central Soil Testing Laboratory',
-            role: 'lab',
-            organization: 'National Soil Research Lab'
-          }
-        };
-      case 'admin':
-        return {
-          id: 'demo-admin-id',
-          email: 'admin@krishidrishti.ag',
-          user_metadata: {
-            name: 'System Administrator',
-            role: 'admin',
-            organization: 'KrishiDrishti Admin Ops'
-          }
-        };
-      case 'expert':
-        return {
-          id: 'demo-expert-id',
-          email: 'expert.pathologist@krishidrishti.ag',
-          user_metadata: {
-            name: 'Dr. Ananya Rao',
-            role: 'expert',
-            organization: 'ICAR Plant Pathology Specialist'
-          }
-        };
-      default:
-        return {
-          id: 'demo-farmer-id',
-          email: 'arjun@krishidrishti.ag',
-          user_metadata: {
-            name: 'Arjun Singh',
-            role: 'farmer',
-            organization: 'Karnal Farm Plot 4'
-          }
-        };
+  const fetchUserRole = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+        
+      if (error || !data) return null;
+      return data.role;
+    } catch (e) {
+      console.error('Failed to fetch user role:', e);
+      return null;
     }
   };
 
-  const determineRole = (currentUser) => {
-    const storedRole = sessionStorage.getItem('user_role');
-    if (storedRole && ['lab', 'admin', 'expert', 'farmer'].includes(storedRole)) {
-      return storedRole;
+  const handleAuthSession = async (currentSession) => {
+    setSession(currentSession);
+    const currentUser = currentSession?.user ?? null;
+    setUser(currentUser);
+    
+    if (currentUser) {
+      const dbRole = await fetchUserRole(currentUser.id);
+      setRole(dbRole);
+    } else {
+      setRole(null);
     }
-    if (currentUser?.user_metadata?.role && ['lab', 'admin', 'expert', 'farmer'].includes(currentUser.user_metadata.role)) {
-      return currentUser.user_metadata.role;
-    }
-    if (currentUser?.app_metadata?.role && ['lab', 'admin', 'expert', 'farmer'].includes(currentUser.app_metadata.role)) {
-      return currentUser.app_metadata.role;
-    }
-    if (sessionStorage.getItem('demo_mode') === 'true') {
-      const demoRole = sessionStorage.getItem('demo_role');
-      if (demoRole && ['lab', 'admin', 'expert', 'farmer'].includes(demoRole)) {
-        return demoRole;
-      }
-    }
-    return null; // Strict security: Missing/invalid role returns null, never defaults to farmer
+    setLoading(false);
   };
 
   useEffect(() => {
-    if (sessionStorage.getItem('demo_mode') === 'true') {
-      const activeRole = sessionStorage.getItem('demo_role');
-      if (activeRole && ['lab', 'admin', 'expert', 'farmer'].includes(activeRole)) {
-        const demoUser = getDemoUser(activeRole);
-        setUser(demoUser);
-        setSession({ user: demoUser });
-        setRole(activeRole);
-        setLoading(false);
-        return;
-      }
-    }
-
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setRole(determineRole(session.user));
-      } else {
-        setRole(null);
-      }
-      setLoading(false);
+      handleAuthSession(session);
     }).catch(err => {
-      console.warn('Supabase getSession failed, resetting auth state:', err);
-      setUser(null);
-      setSession(null);
-      setRole(null);
-      setLoading(false);
+      console.error('Supabase getSession failed, resetting auth state:', err);
+      handleAuthSession(null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        setRole(determineRole(session.user));
-      } else {
-        setRole(null);
-      }
-      setLoading(false);
+      setLoading(true);
+      handleAuthSession(session);
     });
 
     return () => subscription?.unsubscribe();
   }, []);
 
-  const loginDemo = (targetRole = 'farmer') => {
-    sessionStorage.setItem('demo_mode', 'true');
-    sessionStorage.setItem('demo_role', targetRole);
-    sessionStorage.setItem('user_role', targetRole);
-    
-    const demoUser = getDemoUser(targetRole);
-    setUser(demoUser);
-    setSession({ user: demoUser });
-    setRole(targetRole);
-  };
-
-  const setAuthenticatedRole = (targetRole) => {
-    sessionStorage.setItem('user_role', targetRole);
-    setRole(targetRole);
-  };
-
   const logout = async () => {
-    sessionStorage.removeItem('demo_mode');
-    sessionStorage.removeItem('demo_role');
-    sessionStorage.removeItem('user_role');
+    setLoading(true);
     setUser(null);
     setSession(null);
     setRole(null);
     try {
       await supabase.auth.signOut();
     } catch (e) {
-      console.warn('Sign out error:', e);
+      console.error('Sign out error:', e);
     }
+    setLoading(false);
   };
 
   return (
@@ -155,8 +75,6 @@ export function AuthProvider({ children }) {
         session,
         loading,
         role,
-        loginDemo,
-        setAuthenticatedRole,
         logout,
         isAuthenticated: !!user
       }}

@@ -31,9 +31,6 @@ export function ProtectedRoute({ allowedRoles, children }) {
     if (allowedRoles.includes('lab')) {
       return <Navigate to="/lab/login" state={{ from: location }} replace />;
     }
-    if (allowedRoles.includes('farmer')) {
-      return <Navigate to="/farmer/login" state={{ from: location }} replace />;
-    }
     if (allowedRoles.includes('admin')) {
       return <Navigate to="/admin/login" state={{ from: location }} replace />;
     }
@@ -49,15 +46,13 @@ export function ProtectedRoute({ allowedRoles, children }) {
     if (role === 'lab') {
       return <Navigate to="/lab/dashboard" replace />;
     }
-    if (role === 'farmer') {
-      return <Navigate to="/farmer/dashboard" replace />;
-    }
     if (role === 'admin') {
       return <Navigate to="/admin/dashboard" replace />;
     }
     if (role === 'expert') {
       return <Navigate to="/expert/dashboard" replace />;
     }
+    // No farmer portal, so we logout or go to portal selection
     return <Navigate to="/login" replace />;
   }
 

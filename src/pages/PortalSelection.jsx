@@ -23,24 +23,6 @@ export function PortalSelection() {
 
         {/* Portals Selection Grid */}
         <div className="portals-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-          {/* Farmer Portal Card */}
-          <div className="portal-card farmer-card" onClick={() => navigate('/farmer/login')} style={{ background: '#111c16', border: '1px solid #16a34a', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
-            <div className="card-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <span className="portal-icon green-icon" style={{ background: 'rgba(163, 230, 53, 0.15)', padding: '10px', borderRadius: '10px', color: '#a3e635' }}>
-                <Sprout size={24} />
-              </span>
-              <span className="role-tag green-tag" style={{ background: '#16a34a', color: '#fff', fontSize: '11px', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold' }}>Farmer Services</span>
-            </div>
-            <h2 style={{ fontSize: '20px', color: '#f8fafc', margin: '0 0 8px 0' }}>Farmer / User Portal</h2>
-            <p style={{ color: '#94a3b8', fontSize: '13.5px', marginBottom: '16px' }}>Request soil testing, track sample progress, and view certified lab reports directly in your account.</p>
-            <div className="portal-features" style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12.5px', color: '#cbd5e1', marginBottom: '20px' }}>
-              <span><CheckCircle2 size={14} style={{ color: '#a3e635' }} /> Soil Test Requests</span>
-              <span><CheckCircle2 size={14} style={{ color: '#a3e635' }} /> Certified PDF Reports</span>
-            </div>
-            <button className="button primary full farmer-button" style={{ marginTop: 'auto', background: '#16a34a', borderColor: '#16a34a' }}>
-              Enter Farmer Portal <ArrowRight size={16} />
-            </button>
-          </div>
 
           {/* Soil Testing Lab Portal Card */}
           <div className="portal-card lab-card" onClick={() => navigate('/lab/login')} style={{ background: '#111c16', border: '1px solid #0284c7', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>

@@ -23,11 +23,10 @@ export function LabRequestDetail() {
   useEffect(() => {
     async function loadRequestDetails() {
       try {
-        const reqData = await soilTestService.getSoilTestRequestById(id);
+        const reqData = await soilTestService.getRequestById(id);
         setRequest(reqData);
         
-        const allReports = await soilTestService.getLabSoilTestReports();
-        const reqReports = allReports.filter(r => r.request_id === id);
+        const reqReports = await soilTestService.getReports({ request_id: id });
         setReports(reqReports);
       } catch (err) {
         console.warn('Failed to load request details:', err);
@@ -45,7 +44,7 @@ export function LabRequestDetail() {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      const updated = await soilTestService.updateSoilTestRequestStatus(id, newStatus);
+      const updated = await soilTestService.updateRequestStatus(id, newStatus);
       setRequest(updated);
       notify(`Status updated to '${newStatus}'.`);
     } catch (_err) {
@@ -68,7 +67,7 @@ export function LabRequestDetail() {
       const newReport = await soilTestService.uploadSoilTestReport(pdfFile, {
         requestId: id,
         userId: request.user_id,
-        labId: 'demo-lab-id',
+        labId: request.lab_id || null,
         remarks: remarks || 'Detailed soil NPK & pH analysis completed.',
         testedBy
       });

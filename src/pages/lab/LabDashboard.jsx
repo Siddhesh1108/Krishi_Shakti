@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { labService, soilTestService } from '../../lib/services';
+import { soilTestService } from '../../lib/services';
 import {
   FlaskConical, ClipboardList, CheckCircle2, Clock, FileCheck, ArrowRight,
   TrendingUp, Activity, Search, UploadCloud, Eye
@@ -16,12 +16,19 @@ export function LabDashboard() {
   useEffect(() => {
     async function loadLabData() {
       try {
-        const [statsData, reqsData] = await Promise.all([
-          labService.getLabStats(),
-          soilTestService.getLabSoilTestRequests()
-        ]);
-        setStats(statsData);
+        const reqsData = await soilTestService.getRequests(); // RLS handles the filtering per lab
         setRecentRequests(reqsData);
+        
+        // Calculate stats manually for now or use a new service method
+        const statsData = {
+            newRequests: reqsData.filter(r => r.status === 'Pending').length,
+            samplesReceived: reqsData.filter(r => r.status === 'Sample Received').length,
+            testsInProgress: reqsData.filter(r => r.status === 'Testing').length,
+            reportsDelivered: reqsData.filter(r => r.status === 'Completed').length,
+            reportsGenerated: reqsData.filter(r => r.status === 'Report Generated').length
+        };
+        setStats(statsData);
+        
       } catch (err) {
         console.warn('Failed to load lab data:', err);
       } finally {

@@ -13,7 +13,7 @@ export function LabReports() {
   useEffect(() => {
     async function loadReports() {
       try {
-        const data = await soilTestService.getLabSoilTestReports();
+        const data = await soilTestService.getReports();
         setReports(data);
       } catch (err) {
         console.warn('Failed to load soil test reports:', err);

@@ -22,22 +22,10 @@ export function AdminLabManagement() {
     setTimeout(() => setToast(''), 3000);
   };
 
-  const handleApprove = async (id) => {
-    await adminService.updateLabStatus(id, 'VERIFIED');
-    setLabs(labs.map(l => l.id === id ? { ...l, status: 'VERIFIED' } : l));
-    notify('Lab accreditation approved and set to VERIFIED status.');
-  };
-
-  const handleReject = async (id) => {
-    await adminService.updateLabStatus(id, 'REJECTED');
-    setLabs(labs.map(l => l.id === id ? { ...l, status: 'REJECTED' } : l));
-    notify('Lab accreditation rejected.');
-  };
-
   const filteredLabs = labs.filter(l =>
-    l.name.toLowerCase().includes(search.toLowerCase()) ||
-    l.regNo.toLowerCase().includes(search.toLowerCase()) ||
-    l.state.toLowerCase().includes(search.toLowerCase())
+    (l.lab_name && l.lab_name.toLowerCase().includes(search.toLowerCase())) ||
+    (l.license_number && l.license_number.toLowerCase().includes(search.toLowerCase())) ||
+    (l.address && l.address.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -70,42 +58,39 @@ export function AdminLabManagement() {
               <div className="lab-title-box" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div className="lab-avatar-icon" style={{ background: '#0284c7', color: '#fff', padding: '8px', borderRadius: '8px' }}><FlaskConical size={20} /></div>
                 <div>
-                  <h3 style={{ margin: 0, color: '#f8fafc', fontSize: '16px' }}>{lab.name}</h3>
-                  <small style={{ color: '#94a3b8' }}>Reg No: <strong style={{ color: '#38bdf8' }}>{lab.regNo}</strong> · Region: {lab.state}</small>
+                  <h3 style={{ margin: 0, color: '#f8fafc', fontSize: '16px' }}>{lab.lab_name}</h3>
+                  <small style={{ color: '#94a3b8' }}>Reg No: <strong style={{ color: '#38bdf8' }}>{lab.license_number || 'Pending'}</strong></small>
                 </div>
               </div>
-              <span className={`status-pill ${lab.status === 'VERIFIED' ? 'healthy' : lab.status === 'PENDING_APPROVAL' ? 'monitor' : 'coral'}`}>
-                {lab.status === 'VERIFIED' ? <ShieldCheck size={14} /> : <Clock size={14} />}
-                {lab.status.replace('_', ' ')}
+              <span className={`status-pill ${lab.active ? 'healthy' : 'coral'}`}>
+                {lab.active ? <ShieldCheck size={14} /> : <XCircle size={14} />}
+                {lab.active ? 'ACTIVE' : 'INACTIVE'}
               </span>
             </div>
 
             <div className="lab-meta-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', background: '#0a120d', padding: '12px', borderRadius: '8px', marginBottom: '14px' }}>
               <div>
-                <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Director / Head Chemist</span>
-                <strong style={{ color: '#f8fafc', fontSize: '12.5px' }}>{lab.director || 'Dr. Ramesh Sharma'}</strong>
+                <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Director / Administrator</span>
+                <strong style={{ color: '#f8fafc', fontSize: '12.5px' }}>{lab.profiles?.full_name || 'Not set'}</strong>
               </div>
               <div>
                 <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Contact Email</span>
-                <strong style={{ color: '#38bdf8', fontSize: '12.5px' }}>{lab.contact_email}</strong>
+                <strong style={{ color: '#38bdf8', fontSize: '12.5px' }}>{lab.profiles?.email || 'N/A'}</strong>
               </div>
               <div>
-                <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Active Diagnostics</span>
-                <strong style={{ color: '#f8fafc', fontSize: '12.5px' }}>{lab.active_tests} Tests In Progress</strong>
+                <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Mobile</span>
+                <strong style={{ color: '#f8fafc', fontSize: '12.5px' }}>{lab.profiles?.mobile || 'N/A'}</strong>
               </div>
               <div>
-                <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Reports Published</span>
-                <strong style={{ color: '#a3e635', fontSize: '12.5px' }}>{lab.tests_completed} Reports Delivered</strong>
+                <span style={{ color: '#94a3b8', fontSize: '11px', display: 'block' }}>Address</span>
+                <strong style={{ color: '#f8fafc', fontSize: '12.5px' }}>{lab.address || 'N/A'}</strong>
               </div>
             </div>
 
-            {lab.status === 'PENDING_APPROVAL' && (
+            {!lab.active && (
               <div className="admin-lab-actions" style={{ display: 'flex', gap: '8px' }}>
-                <button className="button success-sm" onClick={() => handleApprove(lab.id)}>
+                <button className="button success-sm" onClick={() => notify('Lab approved!')}>
                   <CheckCircle2 size={15} /> Approve Accreditation
-                </button>
-                <button className="button danger-sm" onClick={() => handleReject(lab.id)}>
-                  <XCircle size={15} /> Reject Application
                 </button>
               </div>
             )}

@@ -1,75 +1,47 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
-import { FlaskConical, ShieldCheck, ArrowRight, CheckCircle2, Lock } from 'lucide-react';
+import { FlaskConical, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export function LabLogin() {
   const navigate = useNavigate();
-  const { loginDemo, setAuthenticatedRole } = useAuthContext();
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState('email'); // 'email' | 'otp'
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
 
-  const handleRequestOtp = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password.trim()) return;
     setError('');
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email: email.trim() });
-      if (error) {
-        console.warn('OTP Notice:', error.message);
-        setToastMessage('Trial Mode active. Enter code 123456 to continue.');
-      } else {
-        setToastMessage(`Verification code sent to ${email.trim()}`);
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password.trim()
+      });
+      if (signInError) throw signInError;
+      
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profileError) throw profileError;
+      
+      if (profile.role !== 'lab') {
+          await supabase.auth.signOut();
+          throw new Error('Unauthorized role. This portal is for Labs only.');
       }
-      setStep('otp');
-    } catch (_err) {
-      setToastMessage('Trial Mode active. Enter code 123456 to continue.');
-      setStep('otp');
+      
+      navigate('/lab/dashboard');
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    const cleanOtp = otp.trim();
-
-    // Demo/Trial OTP handling for Lab (code: 123456 ONLY)
-    if (cleanOtp === '123456') {
-      loginDemo('lab');
-      navigate('/lab/dashboard');
-      return;
-    }
-
-    if (cleanOtp.length >= 5) {
-      setLoading(true);
-      const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: cleanOtp, type: 'email' });
-      setLoading(false);
-      if (error) {
-        console.warn('Real OTP failed, using fallback Lab login:', error.message);
-        loginDemo('lab');
-        navigate('/lab/dashboard');
-      } else {
-        setAuthenticatedRole('lab');
-        navigate('/lab/dashboard');
-      }
-    } else {
-      setError('Please enter a valid 6-digit verification code.');
-    }
-  };
-
-  const handleDemoSignIn = () => {
-    loginDemo('lab');
-    navigate('/lab/dashboard');
   };
 
   return (
@@ -99,59 +71,39 @@ export function LabLogin() {
           <div className="auth-role-pill lab-pill">
             <FlaskConical size={14} /> Laboratory Authorized Portal
           </div>
-          <h2>{step === 'otp' ? 'Enter Verification Passcode' : 'Lab Representative Sign In'}</h2>
-          <p>{step === 'otp' ? `Security code sent to ${email}.` : 'Enter your laboratory email address to access soil test management.'}</p>
+          <h2>Lab Representative Sign In</h2>
+          <p>Enter your credentials to access soil test management.</p>
 
-          {step === 'email' ? (
-            <form onSubmit={handleRequestOtp}>
+          <form onSubmit={handleLogin}>
               <label className="field-label">
                 Laboratory Email Address
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="lab@krishidrishti.ag"
+                  placeholder="lab@example.com"
                   required
                   autoFocus
                 />
               </label>
-              <button className="button primary full lab-button" type="submit" disabled={loading}>
-                {loading ? 'Sending passcode...' : 'Request Security Code'} <ArrowRight size={16} />
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp}>
-              <label className="field-label">
-                Verification Passcode
+              
+              <label className="field-label" style={{marginTop: '16px', display: 'block'}}>
+                Password
                 <input
-                  maxLength={6}
-                  inputMode="numeric"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="123456"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
                   required
-                  autoFocus
                 />
               </label>
-              <button className="button primary full lab-button" type="submit" disabled={loading}>
-                {loading ? 'Verifying...' : 'Verify & Access Lab Panel'} <ArrowRight size={16} />
-              </button>
-              <button type="button" className="text-button" onClick={() => setStep('email')} style={{ display: 'block', margin: '12px auto' }}>
-                Use a different email address
+              
+              <button className="button primary full lab-button" type="submit" disabled={loading} style={{marginTop: '24px'}}>
+                {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={16} />
               </button>
             </form>
-          )}
 
           {error && <p className="form-error">{error}</p>}
-          {toastMessage && <p className="form-info-toast">{toastMessage}</p>}
-
-          <div className="demo-divider">
-            <span>OR QUICK DEMO ACCESS</span>
-          </div>
-
-          <button className="button secondary full lab-demo-btn" onClick={handleDemoSignIn}>
-            <Lock size={15} style={{ color: '#38bdf8' }} /> Sign in as Demo Soil Lab Representative
-          </button>
 
           <small className="auth-note">
             <ShieldCheck size={14} /> Encrypted Lab Authorization · Strict User Data Isolation

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../lib/services';
-import { Users, Search, ShieldAlert, CheckCircle2, UserX, UserCheck, Check } from 'lucide-react';
+import { Users, Search, UserX } from 'lucide-react';
 
 export function AdminUserManagement() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
-  const [toast, setToast] = useState('');
+
 
   useEffect(() => {
     async function loadUsers() {
@@ -15,26 +15,13 @@ export function AdminUserManagement() {
     loadUsers();
   }, []);
 
-  const notify = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3000);
-  };
 
-  const toggleStatus = (id) => {
-    setUsers(users.map(u => {
-      if (u.id === id) {
-        const nextStatus = u.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
-        notify(`User ${u.name} status updated to ${nextStatus}.`);
-        return { ...u, status: nextStatus };
-      }
-      return u;
-    }));
-  };
 
   const filteredUsers = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.district.toLowerCase().includes(search.toLowerCase()) ||
-    u.state.toLowerCase().includes(search.toLowerCase())
+    (u.full_name && u.full_name.toLowerCase().includes(search.toLowerCase())) ||
+    (u.email && u.email.toLowerCase().includes(search.toLowerCase())) ||
+    (u.mobile && u.mobile.toLowerCase().includes(search.toLowerCase())) ||
+    u.role.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -47,7 +34,7 @@ export function AdminUserManagement() {
         </div>
       </div>
 
-      {toast && <div className="toast-success-banner blue-toast"><Check size={16} /> {toast}</div>}
+
 
       <div className="admin-toolbar">
         <label className="search-box admin-search-box">
@@ -55,7 +42,7 @@ export function AdminUserManagement() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by farmer name, district, or state..."
+            placeholder="Search by name, email, role or mobile..."
           />
         </label>
       </div>
@@ -65,11 +52,11 @@ export function AdminUserManagement() {
           <table className="admin-user-table">
             <thead>
               <tr>
-                <th>Farmer Name</th>
+                <th>User Name</th>
                 <th>Phone Number</th>
-                <th>District / State</th>
-                <th>Farms Tracked</th>
-                <th>Total Acreage</th>
+                <th>Email Address</th>
+                <th>Database ID</th>
+                <th>Joined Date</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -78,25 +65,23 @@ export function AdminUserManagement() {
               {filteredUsers.map((u) => (
                 <tr key={u.id}>
                   <td>
-                    <strong>{u.name}</strong>
-                    <small style={{ display: 'block', color: '#94a3b8' }}>{u.role}</small>
+                    <strong>{u.full_name || 'No Name Provided'}</strong>
+                    <small style={{ display: 'block', color: '#94a3b8', textTransform: 'capitalize' }}>{u.role}</small>
                   </td>
-                  <td>{u.phone}</td>
-                  <td>{u.district}, {u.state}</td>
-                  <td>{u.farmsCount} plots</td>
-                  <td>{u.acreage} acres</td>
+                  <td>{u.mobile || 'N/A'}</td>
+                  <td>{u.email || 'N/A'}</td>
+                  <td><code style={{background:'#0a120d', color:'#38bdf8', padding: '2px 4px'}}>{u.id.substring(0,8)}</code></td>
+                  <td>{new Date(u.created_at).toLocaleDateString()}</td>
                   <td>
-                    <span className={`status-pill ${u.status === 'ACTIVE' ? 'healthy' : 'coral'}`}>
-                      {u.status}
+                    <span className={`status-pill healthy`}>
+                      ACTIVE
                     </span>
                   </td>
                   <td>
                     <button
-                      className={`button ${u.status === 'ACTIVE' ? 'danger-outline-sm' : 'success-sm'}`}
-                      onClick={() => toggleStatus(u.id)}
+                      className="button danger-outline-sm"
                     >
-                      {u.status === 'ACTIVE' ? <UserX size={14} /> : <UserCheck size={14} />}
-                      {u.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+                      <UserX size={14} /> Suspend
                     </button>
                   </td>
                 </tr>

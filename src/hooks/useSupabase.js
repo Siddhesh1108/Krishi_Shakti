@@ -63,14 +63,6 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Trial login bypass
-    if (sessionStorage.getItem('demo_mode') === 'true') {
-      const demoUser = { id: 'demo-farmer-id', user_metadata: { name: 'Trial User' } };
-      setUser(demoUser);
-      setSession({ user: demoUser });
-      setLoading(false);
-      return;
-    }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);

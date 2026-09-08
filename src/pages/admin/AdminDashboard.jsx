@@ -66,29 +66,29 @@ export function AdminDashboard() {
         <div className="metric-card admin-metric-card">
           <div className="metric-icon green"><Users size={20} /></div>
           <span>Total Farmers</span>
-          <div className="metric-value">{stats?.totalFarmers || 1248} <small>registered</small></div>
+          <div className="metric-value">{stats?.totalFarmers || 0} <small>registered</small></div>
           <p>Live database records</p>
         </div>
 
         <div className="metric-card admin-metric-card">
-          <div className="metric-icon blue"><Tractor size={20} /></div>
-          <span>Farmland Tracked</span>
-          <div className="metric-value">{stats?.totalAcreage || 18420} <small>acres</small></div>
-          <p>Mapped agricultural acreage</p>
-        </div>
-
-        <div className="metric-card admin-metric-card">
           <div className="metric-icon amber"><Bot size={20} /></div>
-          <span>AI Diagnoses</span>
-          <div className="metric-value">{stats?.totalDiagnoses || 342} <small>cases</small></div>
-          <p>Pathology engine requests</p>
+          <span>Agronomy Experts</span>
+          <div className="metric-value">{stats?.totalExperts || 0} <small>specialists</small></div>
+          <p>Assigned Pathology Reviewers</p>
         </div>
 
         <div className="metric-card admin-metric-card">
           <div className="metric-icon coral"><FlaskConical size={20} /></div>
           <span>Soil Testing Labs</span>
-          <div className="metric-value">{stats?.totalLabs || 8} <small>stations</small></div>
-          <p>{stats?.pendingApprovals || 2} pending approvals</p>
+          <div className="metric-value">{stats?.totalLabs || 0} <small>stations</small></div>
+          <p>Accredited Soil Labs</p>
+        </div>
+
+        <div className="metric-card admin-metric-card">
+          <div className="metric-icon blue"><Store size={20} /></div>
+          <span>Soil Test Requests</span>
+          <div className="metric-value">{stats?.totalRequests || 0} <small>requests</small></div>
+          <p>Total logged in system</p>
         </div>
       </div>
 

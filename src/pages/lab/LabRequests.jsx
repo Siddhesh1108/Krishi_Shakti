@@ -17,7 +17,7 @@ export function LabRequests() {
   useEffect(() => {
     async function loadRequests() {
       try {
-        const data = await soilTestService.getLabSoilTestRequests();
+        const data = await soilTestService.getRequests();
         setRequests(data);
       } catch (err) {
         console.warn('Failed to load soil test requests:', err);
@@ -34,7 +34,7 @@ export function LabRequests() {
   };
 
   const handleStatusUpdate = async (id, newStatus) => {
-    await soilTestService.updateSoilTestRequestStatus(id, newStatus);
+    await soilTestService.updateRequestStatus(id, newStatus);
     setRequests(requests.map(r => r.id === id ? { ...r, status: newStatus } : r));
     notify(`Request ${id} status updated to '${newStatus}'.`);
   };
