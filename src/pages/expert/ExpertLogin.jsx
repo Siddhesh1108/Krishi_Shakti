@@ -5,8 +5,8 @@ import { Stethoscope, ShieldCheck, ArrowRight, CheckCircle2, Activity } from 'lu
 
 export function ExpertLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('expert@test.com');
+  const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 

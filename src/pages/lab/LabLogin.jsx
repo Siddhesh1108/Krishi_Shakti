@@ -5,8 +5,8 @@ import { FlaskConical, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-reac
 
 export function LabLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('lab@test.com');
+  const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 

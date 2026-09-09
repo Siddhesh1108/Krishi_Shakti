@@ -5,8 +5,8 @@ import { Cpu, ShieldCheck, ArrowRight, CheckCircle2, KeyRound } from 'lucide-rea
 
 export function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@test.com');
+  const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
