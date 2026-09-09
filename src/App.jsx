@@ -4,6 +4,7 @@ import './App.css'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { PortalSelection } from './pages/PortalSelection'
+import { Signup } from './pages/Signup'
 
 // Lab Portal Imports
 import { LabLayout } from './layouts/LabLayout'
@@ -39,6 +40,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PortalSelection />} />
           <Route path="/login" element={<PortalSelection />} />
+          <Route path="/signup" element={<Signup />} />
 
           <Route path="/lab/login" element={<LabLogin />} />
           <Route

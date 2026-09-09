@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Sprout, FlaskConical, Cpu, Stethoscope, ArrowRight,
   ShieldCheck, CheckCircle2, ClipboardList
@@ -83,8 +83,12 @@ export function PortalSelection() {
         </div>
 
         {/* Footer */}
-        <footer className="portal-footer">
-          <small><ShieldCheck size={14} /> KrishiShakti Enterprise System · 256-Bit Role Isolation</small>
+        <footer className="portal-footer" style={{ marginTop: '32px', textAlign: 'center' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <span style={{ color: '#94a3b8', fontSize: '14px' }}>New to KrishiShakti? </span>
+            <Link to="/signup" style={{ color: '#38bdf8', fontWeight: 600, textDecoration: 'none' }}>Create an Account</Link>
+          </div>
+          <small><ShieldCheck size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> KrishiShakti Enterprise System · 256-Bit Role Isolation</small>
         </footer>
       </div>
     </div>
