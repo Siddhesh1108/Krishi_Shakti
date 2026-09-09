@@ -33,17 +33,15 @@ export function Signup() {
     setLoading(true);
 
     try {
-      const { auth } = await import('../lib/firebase');
-      const { createUserWithEmailAndPassword } = await import('firebase/auth');
+      const { roomdbAuth } = await import('../lib/roomdbAuth');
       
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email.trim(), formData.password.trim());
-      const firebaseUser = userCredential.user;
+      const { user: bridgeUser } = await roomdbAuth.signup(formData.email.trim(), formData.password.trim());
       
       // Create profile in Supabase
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{
-          id: firebaseUser.uid,
+          id: bridgeUser.uid,
           email: formData.email.trim(),
           role: formData.role,
           full_name: formData.fullName.trim(),
@@ -57,7 +55,7 @@ export function Signup() {
          const { error: labError } = await supabase
           .from('labs')
           .insert([{
-            id: firebaseUser.uid,
+            id: bridgeUser.uid,
             lab_name: formData.labName.trim(),
             active: true
           }]);

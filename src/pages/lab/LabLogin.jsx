@@ -17,24 +17,21 @@ export function LabLogin() {
     setLoading(true);
 
     try {
-      const { auth } = await import('../../lib/firebase');
-      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      const { roomdbAuth } = await import('../../lib/roomdbAuth');
       
-      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
-      const firebaseUser = userCredential.user;
+      const { user: bridgeUser } = await roomdbAuth.login(email.trim(), password.trim());
       
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', firebaseUser.uid)
+        .eq('id', bridgeUser.uid)
         .single();
         
       if (profileError) throw profileError;
       
       if (profile.role !== 'lab') {
-          const { signOut } = await import('firebase/auth');
-          await signOut(auth);
-          throw new Error('Unauthorized role. This portal is for Labs only.');
+          await roomdbAuth.logout();
+          throw new Error('Unauthorized role. This portal is for Soil Testing Labs only.');
       }
       
       navigate('/lab/dashboard');

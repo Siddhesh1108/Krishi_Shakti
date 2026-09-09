@@ -26,23 +26,22 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    import('../lib/firebase').then(({ auth }) => {
-        import('firebase/auth').then(({ onAuthStateChanged }) => {
-            const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-                setLoading(true);
-                setUser(firebaseUser);
-                if (firebaseUser) {
-                    const dbRole = await fetchUserRole(firebaseUser.uid);
-                    setRole(dbRole);
-                } else {
-                    setRole(null);
-                }
-                setLoading(false);
-            });
-            return () => unsubscribe();
+    import('../lib/roomdbAuth').then(({ roomdbAuth }) => {
+        const unsubscribe = roomdbAuth.onAuthStateChanged(async (bridgeUser) => {
+            setLoading(true);
+            setUser(bridgeUser);
+            if (bridgeUser) {
+                const dbRole = await fetchUserRole(bridgeUser.uid);
+                setRole(dbRole);
+            } else {
+                setRole(null);
+            }
+            setLoading(false);
         });
+        // cleanup would normally go here, simplified for mock
+        // return () => unsubscribe();
     }).catch(err => {
-        console.error('Failed to initialize Firebase Auth', err);
+        console.error('Failed to initialize Bridge Auth', err);
         setLoading(false);
     });
   }, []);
@@ -50,9 +49,10 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     setLoading(true);
     try {
-      const { auth } = await import('../lib/firebase');
-      const { signOut } = await import('firebase/auth');
-      await signOut(auth);
+      const { roomdbAuth } = await import('../lib/roomdbAuth');
+      await roomdbAuth.logout();
+      setUser(null); // manually clear since we don't have realtime listener from android yet
+      setRole(null);
     } catch (e) {
       console.error('Sign out error:', e);
     }

@@ -149,9 +149,15 @@ CREATE POLICY "Users can update own profile."
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id);
 
-CREATE POLICY "Admins can manage all profiles."
-    ON public.profiles FOR ALL
-    USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+-- Fix for infinite recursion: avoid querying profiles table in a FOR ALL policy.
+-- Admins can update/delete any profile. The subquery is isolated.
+CREATE POLICY "Admins can update all profiles."
+    ON public.profiles FOR UPDATE
+    USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+
+CREATE POLICY "Admins can delete all profiles."
+    ON public.profiles FOR DELETE
+    USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
 
 -- Labs
 CREATE POLICY "Labs viewable by authenticated users"
@@ -160,7 +166,7 @@ CREATE POLICY "Labs viewable by authenticated users"
     
 CREATE POLICY "Admins can manage labs"
     ON public.labs FOR ALL
-    USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+    USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
 
 CREATE POLICY "Labs can update own record"
     ON public.labs FOR UPDATE
