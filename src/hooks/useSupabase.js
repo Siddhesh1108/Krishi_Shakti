@@ -57,27 +57,3 @@ export function useRealtime(table, filter, callback, deps = []) {
   }, [table, ...deps]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-export function useAuth() {
-  const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription?.unsubscribe();
-  }, []);
-
-  return { user, session, loading };
-}

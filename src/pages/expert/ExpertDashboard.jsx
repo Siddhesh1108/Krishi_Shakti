@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { expertService } from '../../lib/services';
+import { useAuthContext } from '../../context/AuthContext';
 import {
   Stethoscope, AlertTriangle, CheckCircle2, BookOpen, Clock, ArrowUpRight, Check, X
 } from 'lucide-react';
 
 export function ExpertDashboard() {
   const [assignments, setAssignments] = useState([]);
+  const { user } = useAuthContext();
 
   useEffect(() => {
     async function load() {
-      // Temporary fallback user ID if not provided by context, though it should be
-      const expertId = (await import('../../lib/supabaseClient').then(m => m.supabase.auth.getUser())).data.user?.id;
-      if (expertId) {
-          const data = await expertService.getAssignments(expertId);
+      if (user?.uid) {
+          const data = await expertService.getAssignments(user.uid);
           setAssignments(data);
       }
     }
     load();
-  }, []);
+  }, [user]);
 
   const highPriority = 0; // Not tracked in assignments currently
   const pendingCases = assignments.length;

@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
+  const [session] = useState(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null); // 'admin' | 'lab' | 'expert' | 'farmer'
 
@@ -25,43 +25,34 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const handleAuthSession = async (currentSession) => {
-    setSession(currentSession);
-    const currentUser = currentSession?.user ?? null;
-    setUser(currentUser);
-    
-    if (currentUser) {
-      const dbRole = await fetchUserRole(currentUser.id);
-      setRole(dbRole);
-    } else {
-      setRole(null);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleAuthSession(session);
+    import('../lib/firebase').then(({ auth }) => {
+        import('firebase/auth').then(({ onAuthStateChanged }) => {
+            const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+                setLoading(true);
+                setUser(firebaseUser);
+                if (firebaseUser) {
+                    const dbRole = await fetchUserRole(firebaseUser.uid);
+                    setRole(dbRole);
+                } else {
+                    setRole(null);
+                }
+                setLoading(false);
+            });
+            return () => unsubscribe();
+        });
     }).catch(err => {
-      console.error('Supabase getSession failed, resetting auth state:', err);
-      handleAuthSession(null);
+        console.error('Failed to initialize Firebase Auth', err);
+        setLoading(false);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoading(true);
-      handleAuthSession(session);
-    });
-
-    return () => subscription?.unsubscribe();
   }, []);
 
   const logout = async () => {
     setLoading(true);
-    setUser(null);
-    setSession(null);
-    setRole(null);
     try {
-      await supabase.auth.signOut();
+      const { auth } = await import('../lib/firebase');
+      const { signOut } = await import('firebase/auth');
+      await signOut(auth);
     } catch (e) {
       console.error('Sign out error:', e);
     }

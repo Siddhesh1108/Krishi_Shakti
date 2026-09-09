@@ -17,22 +17,23 @@ export function ExpertLogin() {
     setLoading(true);
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password.trim()
-      });
-      if (signInError) throw signInError;
+      const { auth } = await import('../../lib/firebase');
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+      const firebaseUser = userCredential.user;
       
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', data.user.id)
+        .eq('id', firebaseUser.uid)
         .single();
         
       if (profileError) throw profileError;
       
       if (profile.role !== 'expert') {
-          await supabase.auth.signOut();
+          const { signOut } = await import('firebase/auth');
+          await signOut(auth);
           throw new Error('Unauthorized role. This portal is for Experts only.');
       }
       
