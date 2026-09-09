@@ -21,7 +21,6 @@ export function LabLayout() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/lab/login');
   };
 
   const labName = user?.user_metadata?.organization || user?.user_metadata?.name || 'Central Soil Testing Laboratory';

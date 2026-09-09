@@ -21,7 +21,6 @@ export function ExpertLayout() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/expert/login');
   };
 
   const expertName = user?.user_metadata?.name || 'Dr. Ananya Rao';

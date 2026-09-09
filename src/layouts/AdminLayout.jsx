@@ -21,7 +21,6 @@ export function AdminLayout() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/admin/login');
   };
 
   const adminName = user?.user_metadata?.name || 'Platform Administrator';

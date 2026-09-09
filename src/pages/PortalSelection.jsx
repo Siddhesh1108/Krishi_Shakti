@@ -25,7 +25,7 @@ export function PortalSelection() {
         <div className="portals-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
 
           {/* Soil Testing Lab Portal Card */}
-          <div className="portal-card lab-card" onClick={() => navigate('/lab/login')} style={{ background: '#111c16', border: '1px solid #0284c7', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
+          <div className="portal-card lab-card" onClick={() => navigate('/lab/dashboard')} style={{ background: '#111c16', border: '1px solid #0284c7', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
             <div className="card-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span className="portal-icon blue-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', padding: '10px', borderRadius: '10px', color: '#38bdf8' }}>
                 <FlaskConical size={24} />
@@ -44,7 +44,7 @@ export function PortalSelection() {
           </div>
 
           {/* Admin Command Center Card */}
-          <div className="portal-card admin-card" onClick={() => navigate('/admin/login')} style={{ background: '#111c16', border: '1px solid #334155', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
+          <div className="portal-card admin-card" onClick={() => navigate('/admin/dashboard')} style={{ background: '#111c16', border: '1px solid #334155', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
             <div className="card-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span className="portal-icon blue-icon" style={{ background: 'rgba(148, 163, 184, 0.15)', padding: '10px', borderRadius: '10px', color: '#94a3b8' }}>
                 <Cpu size={24} />
@@ -63,7 +63,7 @@ export function PortalSelection() {
           </div>
 
           {/* Agronomy Expert Portal Card */}
-          <div className="portal-card expert-card" onClick={() => navigate('/expert/login')} style={{ background: '#111c16', border: '1px solid #7c3aed', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
+          <div className="portal-card expert-card" onClick={() => navigate('/expert/dashboard')} style={{ background: '#111c16', border: '1px solid #7c3aed', borderRadius: '14px', padding: '24px', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
             <div className="card-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span className="portal-icon purple-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', padding: '10px', borderRadius: '10px', color: '#a855f7' }}>
                 <Stethoscope size={24} />
@@ -84,10 +84,6 @@ export function PortalSelection() {
 
         {/* Footer */}
         <footer className="portal-footer" style={{ marginTop: '32px', textAlign: 'center' }}>
-          <div style={{ marginBottom: '16px' }}>
-            <span style={{ color: '#94a3b8', fontSize: '14px' }}>New to KrishiShakti? </span>
-            <Link to="/signup" style={{ color: '#38bdf8', fontWeight: 600, textDecoration: 'none' }}>Create an Account</Link>
-          </div>
           <small><ShieldCheck size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> KrishiShakti Enterprise System · 256-Bit Role Isolation</small>
         </footer>
       </div>

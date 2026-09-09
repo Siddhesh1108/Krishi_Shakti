@@ -9,54 +9,28 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null); // 'admin' | 'lab' | 'expert' | 'farmer'
 
-  const fetchUserRole = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
-        
-      if (error || !data) return null;
-      return data.role;
-    } catch (e) {
-      console.error('Failed to fetch user role:', e);
-      return null;
-    }
-  };
-
   useEffect(() => {
-    import('../lib/roomdbAuth').then(({ roomdbAuth }) => {
-        const unsubscribe = roomdbAuth.onAuthStateChanged(async (bridgeUser) => {
-            setLoading(true);
-            setUser(bridgeUser);
-            if (bridgeUser) {
-                const dbRole = await fetchUserRole(bridgeUser.uid);
-                setRole(dbRole);
-            } else {
-                setRole(null);
-            }
-            setLoading(false);
-        });
-        // cleanup would normally go here, simplified for mock
-        // return () => unsubscribe();
-    }).catch(err => {
-        console.error('Failed to initialize Bridge Auth', err);
-        setLoading(false);
+    // No-auth mode: instantly authorize as a dummy user
+    setLoading(false);
+    
+    // Determine role based on URL to keep layouts happy
+    const path = window.location.pathname;
+    let currentRole = 'farmer';
+    if (path.includes('/admin')) currentRole = 'admin';
+    if (path.includes('/expert')) currentRole = 'expert';
+    if (path.includes('/lab')) currentRole = 'lab';
+
+    setUser({
+      uid: 'dummy-user-123',
+      email: 'demo@krishishakti.com',
+      user_metadata: { name: 'Demo User' }
     });
+    setRole(currentRole);
   }, []);
 
   const logout = async () => {
-    setLoading(true);
-    try {
-      const { roomdbAuth } = await import('../lib/roomdbAuth');
-      await roomdbAuth.logout();
-      setUser(null); // manually clear since we don't have realtime listener from android yet
-      setRole(null);
-    } catch (e) {
-      console.error('Sign out error:', e);
-    }
-    setLoading(false);
+    // No-auth mode: do nothing or just redirect
+    window.location.href = '/';
   };
 
   return (

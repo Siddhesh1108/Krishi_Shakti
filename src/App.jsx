@@ -42,15 +42,8 @@ function App() {
           <Route path="/login" element={<PortalSelection />} />
           <Route path="/signup" element={<Signup />} />
 
-          <Route path="/lab/login" element={<LabLogin />} />
-          <Route
-            path="/lab/*"
-            element={
-              <ProtectedRoute allowedRoles={['lab']}>
-                <LabLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route path="/lab/login" element={<Navigate to="/lab/dashboard" replace />} />
+          <Route path="/lab/*" element={<LabLayout />}>
             <Route path="dashboard" element={<LabDashboard />} />
             <Route path="requests" element={<LabRequests />} />
             <Route path="requests/:id" element={<LabRequestDetail />} />
@@ -59,15 +52,8 @@ function App() {
             <Route path="*" element={<Navigate to="/lab/dashboard" replace />} />
           </Route>
 
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route path="/admin/login" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/*" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<AdminUserManagement />} />
             <Route path="labs" element={<AdminLabManagement />} />
@@ -80,15 +66,8 @@ function App() {
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Route>
 
-          <Route path="/expert/login" element={<ExpertLogin />} />
-          <Route
-            path="/expert/*"
-            element={
-              <ProtectedRoute allowedRoles={['expert']}>
-                <ExpertLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route path="/expert/login" element={<Navigate to="/expert/dashboard" replace />} />
+          <Route path="/expert/*" element={<ExpertLayout />}>
             <Route path="dashboard" element={<ExpertDashboard />} />
             <Route path="requests" element={<ExpertRequests />} />
             <Route path="clients" element={<ExpertClients />} />
